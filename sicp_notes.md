@@ -102,11 +102,11 @@ A more restricted case analysis:
 
 Based on Heron of Alexandria's algorithm for finding squares:
 
-> To find an approximation of the square root of x
-> Make a guess, G
-> Improve the guess by averaging G and x / G
-> Keep improving the guess until it is good enough
-> Use 1 as the initial guess
+> To find an approximation of the square root of x  
+> Make a guess, G  
+> Improve the guess by averaging G and x / G  
+> Keep improving the guess until it is good enough  
+> Use 1 as the initial guess  
 
 How to write this in lisp?
 
