@@ -71,3 +71,78 @@ Defining procedues:
 (define (square x) (* x x))
 (square 10) ;=> 100
 ```
+
+This can also be written as:
+
+```lisp
+(define square (lambda (x) (* x x)))
+```
+
+Lambda is Lisp's way of saying "make a procedure"
+
+Case analysis / conditional statements:
+
+```lisp
+(define (abs x)
+  (cond ((< x 0) (- x))
+        ((= x 0) 0)
+        ((> x 0) x)))
+```
+
+A more restricted case analysis: 
+
+```lisp
+(define (abs x)
+  (if (< x 0)
+      (- x)
+      x))
+```
+
+#### Basic algorithm
+
+Based on Heron of Alexandria's algorithm for finding squares:
+
+> To find an approximation of the square root of x
+> Make a guess, G
+> Improve the guess by averaging G and x / G
+> Keep improving the guess until it is good enough
+> Use 1 as the initial guess
+
+How to write this in lisp?
+
+```lisp
+;; Here is the final procedure made up of higher-order functions
+;; The "dependencies" utilized are:
+;; improve and good-enough?
+;; Importantly, the procedure also calls itself recursively.
+
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x) x)))
+
+
+;; The improve procedure is defined in terms of average
+
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+;; The average procedure
+
+(define (average x y) 
+  (/ (+ x y) 2))
+
+;; The good-enough? procedure - value depends on how accurate we need to be
+
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x)) 0.001))
+
+;; Finally, call the function and use 1 as initial value
+
+(define (sqrt x)
+  (sqrt-iter 1.0 x))
+
+```
+
+Other languages would use a `while` or `for` loop to solve this sort of problem.
+In lisp, the preferred approach is to rely on **recursion** instead.
