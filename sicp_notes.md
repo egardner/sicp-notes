@@ -45,7 +45,7 @@ When learning a new language, ask:
 
 Combinations can be nested arbitrarily:
 
-```
+```lisp
 (+ 3 (* 5 6) 8 2)  ;=> Evaluates to 43
 ```
 
@@ -67,7 +67,7 @@ structures represented as linear character strings.
 
 Defining procedues:
 
-```
+```lisp
 (define (square x) (* x x))
 (square 10) ;=> 100
 ```
