@@ -1,148 +1,106 @@
 # Structure and Interpretation of Computer Programs
+## Chapter 1: Building Abstractions with Procedures
 
-## Lecture 1 notes
+> The acts of the mind, wherein it exerts its power over simple ideas, are chiefly
+> these three: 1. Combining several simple ideas into one compound one, and thus
+> all complex ideas are made. 2. The second is bringing two ideas, whether simple
+> or complex, together, and setting them by one another so as to take a view of
+> them at once, without uniting them into one, by which it gets all its ideas of
+> relations. 3. The third is separating them from all other ideas that accompany
+> them in their real existence: this is called abstraction, and thus all its
+> general ideas are made.
 
-**Declarative vs Imperative knowledge**: Declarative knowledge represents
-high-level, abstract descriptions of relationships; the kind of knowledge that
-can be expressed in a mathematical equation for example. This is a more "pure"
-kind of knowledge. Imperative knowledge is more procedural and low-level,
-describing how to arrive at a solution step by step instead of just stating the
-solution.
+—John Locke, _An Essay Concerning Human Understanding_ (1690)
 
-**Fixed point mathematics**: A function `f()` can be said to have a fixed point
-if when given some value `y`, `f(y) = y`. This is a very high-level way to
-describe many other important mathematical relationships, such as square roots.
-One "imperative" way to find the fixed point of a function is to continue
-feeding the results of a function back into itself recursively; if the results
-eventually stop changing, that is the fixed point.
+#### Programming in Lisp
 
-### Course Topics
+Lisp was invented in the 1950s as a formalism for reasoning about _recursion
+equations_ (logical expressions) as a model for computation. Stands for 
+LISt Processing.
 
-Overall goal: Controlling complexity in large programs
-Ways to do this:
+A key feature of Lisp is the ability to represent _procedures_ as _data_.
+This allows the use of certain techniques which blur the boundaries between
+"active" processes and "passive" data. This makes Lisp well-suited for writing
+programs that must manipulate other programs, like compilers and interpreters.
 
-- Black Box Abstraction
-- Conventional Interfaces
-- Creation of new languages (metalinguistic abstraction)
+### 1.1: The Elements of Programming
 
-### Introduction to LISP
+Every serious programming language must define the following:
 
-When learning a new language, ask:
+- Primitive Expressions: `486`
+- Means of Combination: `(+ 137 349)`
+- Means of Abstraction: `(define size 2)`
 
-> What are the primitive elements?
-> What are the means of combination?
-> What are the means of abstraction?
+Every programming language must deal with two kinds of elements:
 
-#### Primitive Data
+- Procedures
+- Data
 
-```lisp
-3         ;numbers
-17.4
-+         ;operators
+Later the line between these two things will blur.
 
-(+ 1 2 3) ;combinations
-```
+#### 1.1.1 Expressions
 
-Combinations can be nested arbitrarily:
+Primitive expressions like numbers: `486`
+Compound expressions: `(+137 349)` (evaluates to 486)
 
-```lisp
-(+ 3 (* 5 6) 8 2)  ;=> Evaluates to 43
-```
+These compound expressions are called _combinations_. 
+Parentheses enclose an operator followed by one or more operands.
 
-Lisp uses Prefix Operation (operators come first). It is also fully
-parenthesized; everything gets wrapped up. Parentheses can never be left out;
-they have a precise meaning.
+The convention of placing the operator on the left side is known as
+_prefix notation_.
 
-Combinations can be thought of as trees, endlessly branching. 2-dimensional
-structures represented as linear character strings.
+#### 1.1.2 Naming and the Environment
 
-#### Means of Abstraction
+Naming variables in the Scheme dialect of Lisp works like this:
 
 ```lisp
-(define a (* 5 5))
-(* a a)  ;=> 25
-
-;; let keyword is equivalent in clisp
+(define size 2)
 ```
 
-Defining procedues:
+This is equivalent to `size = 2` in other languages.
+Variables can be used like other values:
+
+```lisp
+(* 5 size)
+;; 10
+```
+
+`define` is Lisp's simplest **means of abstraction**
+
+#### 1.1.3 Evaluating Combinations
+
+To evaluate a combination, first evaluate each element in the combination:
+evaluation is _recursive_ by nature.
+
+Example of recursive evaluation:
+
+```lisp
+(* (+ 2 (* 46)) (+ 3 5 7))
+```
+
+This expression could be viewed like a tree -- the separate branches of the 
+individual nodes or elements merge into a "trunk" which is the complete value
+of the statement. Values "percolate upward" in this analogy. This general
+process is known as _tree accumulation_.
+
+#### 1.1.4 Compound Procedures
+
+Declaring a variable is a simple and limited means of abstraction.
+A much more powerful abstraction technique is the _procedure definition_.
 
 ```lisp
 (define (square x) (* x x))
-(square 10) ;=> 100
 ```
 
-This can also be written as:
+The general form of a procedure definition is:
+
+```
+(define (<name> <formal parameters>) <body>)
+```
+
+A procedure can be used as a building block to construct new, higher-order procedures:
 
 ```lisp
-(define square (lambda (x) (* x x)))
+(define (sum-of-squares x y)
+  (+ (square x) (square y)))
 ```
-
-Lambda is Lisp's way of saying "make a procedure"
-
-Case analysis / conditional statements:
-
-```lisp
-(define (abs x)
-  (cond ((< x 0) (- x))
-        ((= x 0) 0)
-        ((> x 0) x)))
-```
-
-A more restricted case analysis: 
-
-```lisp
-(define (abs x)
-  (if (< x 0)
-      (- x)
-      x))
-```
-
-#### Basic algorithm
-
-Based on Heron of Alexandria's algorithm for finding squares:
-
-> To find an approximation of the square root of x  
-> Make a guess, G  
-> Improve the guess by averaging G and x / G  
-> Keep improving the guess until it is good enough  
-> Use 1 as the initial guess  
-
-How to write this in lisp?
-
-```lisp
-;; Here is the final procedure made up of higher-order functions
-;; The "dependencies" utilized are:
-;; improve and good-enough?
-;; Importantly, the procedure also calls itself recursively.
-
-(define (sqrt-iter guess x)
-  (if (good-enough? guess x)
-      guess
-      (sqrt-iter (improve guess x) x)))
-
-
-;; The improve procedure is defined in terms of average
-
-(define (improve guess x)
-  (average guess (/ x guess)))
-
-;; The average procedure
-
-(define (average x y) 
-  (/ (+ x y) 2))
-
-;; The good-enough? procedure - value depends on how accurate we need to be
-
-(define (good-enough? guess x)
-  (< (abs (- (square guess) x)) 0.001))
-
-;; Finally, call the function and use 1 as initial value
-
-(define (sqrt x)
-  (sqrt-iter 1.0 x))
-
-```
-
-Other languages would use a `while` or `for` loop to solve this sort of problem.
-In lisp, the preferred approach is to rely on **recursion** instead.
